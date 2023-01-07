@@ -34,17 +34,13 @@ class _MyHomePageState extends State<MyHomePage> {
   // 入力データ格納用のリスト
   List<Map<String, dynamic>> items = [];
 
-  //　ID（カウンタ変数）
-  int _counter = 0;
-
   //　追加ボタンが押されたときの処理（リストにIDと入力データを新規追加）
   void _addItem(String inputText) {
     setState(() {
-      _counter++;
-      items.add({ "id": _counter, "content": inputText});
+      items.add({ "content": inputText});
     });
   }
-
+  
   @override
   // widgetの破棄時にコントローラも破棄
   void dispose() {
@@ -58,53 +54,87 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Container(
-        child: Column(
-          children: [
-            Expanded(
-              child:ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final item = items[index];
-                  // 新しいカードを作成して返す
-                  return Card(
-                    child: ListTile(
-                      title: Text(item["id"].toString() + " : " + item["content"]),
-                    ),
-                  );
-                }
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextFormField(
+              controller: textController,
+              decoration: const InputDecoration(
+                labelText: '名前',
+                border: OutlineInputBorder(),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextFormField(
-                controller: textController,
-                decoration: const InputDecoration(
-                  labelText: '名前',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(16),
-              child : ElevatedButton(
-                onPressed: () {
-                  //テキストフィールドの内容を取得し、アイテムリストに追加
-                  _addItem(textController.text);
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            child : ElevatedButton(
+              onPressed: () {
+                //テキストフィールドの内容を取得し、アイテムリストに追加
+                _addItem(textController.text);
 
-                  // テキストフィールドの内容をクリア
-                  textController.clear();
-                },
-                style: ElevatedButton.styleFrom(
-                  elevation: 16,
-                ),
-                child: const Text('メンバーを追加する'),
-              ),
+                // テキストフィールドの内容をクリア
+                textController.clear();
+              },
+              child: const Text('メンバーを追加する'),
             ),
-          ]
-        ),
+          ),
+          Expanded(
+            child:ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: items.length,
+              itemBuilder: (BuildContext context, int index) {
+                final item = items[index];
+                // 新しいカードを作成して返す
+                return Dismissible(
+                  key: UniqueKey(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Color.fromARGB(255, 85, 85, 85),
+                        ),
+                      ),
+                    ),
+                    child: ListTile(
+                      title: Text(item["content"]),
+                    ),
+                  ),
+                  onDismissed: (direction) {
+                    setState(() {
+                      items.removeAt(index);
+                    });
+                  },
+                  background: Container(
+                    padding: EdgeInsets.only(
+                      right: 16,
+                    ),
+                    alignment: AlignmentDirectional.centerEnd,
+                    color: Colors.red,
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              }
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(24),
+            child : ElevatedButton(
+              onPressed: () {
+                //テキストフィールドの内容を取得し、アイテムリストに追加
+                _addItem(textController.text);
+
+                // テキストフィールドの内容をクリア
+                textController.clear();
+              },
+              child: const Text('スコアを入力する'),
+            ),
+          ),
+        ]
       ),
     );
   }
